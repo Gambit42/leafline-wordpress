@@ -29,7 +29,7 @@ a { text-underline-offset: 3px; }
 
 /* Hero slider */
 .ll-hero { position: relative; }
-.ll-slide.swiper-slide { display: flex; padding: 0 var(--ll-gutter) 3.5rem !important; } /* Swiper's display:block would undo the cover's flex */
+.ll-slide.swiper-slide { display: flex; padding: 0 var(--ll-gutter) 3.5rem !important; margin-block-start: 0; } /* Swiper's display:block would undo the cover's flex; flow layout's block gap would push slides 2+ down */
 .ll-slide .wp-block-cover__inner-container { color: var(--wp--preset--color--cream); width: 100%; }
 .ll-hero__title { font-size: var(--wp--preset--font-size--huge); font-stretch: 88%; margin: 1rem 0 1.4rem; max-width: 18ch; }
 .ll-hero .wp-block-button__link { padding: 0.75rem 3.6rem; }

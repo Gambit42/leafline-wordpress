@@ -1,0 +1,49 @@
+name: Deploy Leafline
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: leafline-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out selected commit
+        uses: actions/checkout@v4
+
+      - name: Configure SSH
+        env:
+          DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
+          SERVER_IP: ${{ secrets.SERVER_IP }}
+        run: |
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$DEPLOY_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "$SERVER_IP" >> ~/.ssh/known_hosts
+
+      - name: Deploy custom theme
+        env:
+          SERVER_IP: ${{ secrets.SERVER_IP }}
+        run: |
+          rsync -az --delete \
+            --exclude node_modules \
+            themes/leafline/ \
+            leafline@"$SERVER_IP":public/wp-content/themes/leafline/
+
+      - name: Finish WordPress deployment
+        env:
+          SERVER_IP: ${{ secrets.SERVER_IP }}
+        run: |
+          ssh leafline@"$SERVER_IP" '
+            wp rewrite flush --path="$HOME/public"
+          '
